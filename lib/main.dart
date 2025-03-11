@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key}); // nasledovanie superkey
   @override
   Widget build(BuildContext context) {
     return Scaffold(
