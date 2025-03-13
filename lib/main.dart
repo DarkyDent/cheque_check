@@ -1,54 +1,13 @@
 import 'package:flutter/material.dart';
-
-
-/*void main() => runApp(new MaterialApp(
-      home: new Scaffold(
-        backgroundColor: const Color.fromARGB(255, 159, 245, 125),
-        appBar: new AppBar(leading: new Icon(Icons.menu), title: new Text('Главная', style: TextStyle(fontSize: 40, color: Color.fromARGB(255, 239, 255, 167)),), backgroundColor: Color.fromARGB(255, 0, 85, 64),
-    ),
-    body: Center(child: Score()),
-    )
-    )
-    );
-
-class Score extends StatefulWidget{
-  @override
-  State<Score> createState() => _ScoreState();
-}
-
-class _ScoreState extends State<Score> {
-  double score = 0;
-
-  
-
-  @override
-  Widget build(BuildContext context){
-    return Container( 
-      color: Color.fromARGB(255, 0, 92, 38),
-      margin: const EdgeInsets.all(10.0),
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children:
-        [
-        Text('$score', style: TextStyle(fontSize: 40, color: Color.fromARGB(255, 239, 255, 167)),),
-        FloatingActionButton(
-          onPressed: () {
-          setState(() {
-            score += 100;
-          });
-          }),
-        ],
-        ),
-      );
-  }
-}*/
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,203 +16,703 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color.fromRGBO(92, 219, 149, 0.7),
       ),
-      home: HomeScreen(), // home page
+      home: MainScreen(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key}); // nasledovanie superkey
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    HomeScreen(),
+    ScoresScreen(),
+    BudgetScreen(),
+  ];
+  final List<String> _pageTitles = [
+    'Главная',
+    'Счета',
+    'Бюджет',
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Color.fromRGBO(92, 219, 149, 1.0)),
-        leading:IconButton(icon:Icon(Icons.notifications),tooltip:'Уведомления', onPressed: () {}),
+        leading: IconButton(
+          icon: Icon(Icons.notifications),
+          tooltip: 'Уведомления',
+          onPressed: () {},
+        ),
         toolbarHeight: 100,
-        title: Text('Главная', textAlign: TextAlign.center, style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 32)),
+        title: Text(
+          _pageTitles[_selectedIndex], // Динамический заголовок
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color.fromRGBO(237, 245, 225, 1.0),
+            fontSize: 32,
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(5, 56, 107, 0.95),
       ),
-       endDrawer: Drawer(
+      endDrawer: Drawer(
         backgroundColor: const Color.fromRGBO(92, 219, 149, 1.0),
         child: ListView(
-          padding:EdgeInsets.all(15),
+          padding: EdgeInsets.all(15),
           children: <Widget>[
             SizedBox(height: 20),
             ListTile(
-              title: Text('Главная', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
+              title: Text(
+                'Главная',
+                style: TextStyle(
+                  color: Color.fromRGBO(237, 245, 225, 1.0),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
               onTap: () {
-                  Navigator.pop(context);
+                _onItemTapped(0);
+                Navigator.pop(context);
               },
             ),
             SizedBox(height: 20),
             ListTile(
-              title: Text('Счета', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
+              title: Text(
+                'Счета',
+                style: TextStyle(
+                  color: Color.fromRGBO(237, 245, 225, 1.0),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
               onTap: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context) => ScoresScreen()),);
+                _onItemTapped(1);
+                Navigator.pop(context);
               },
             ),
-            SizedBox(height:20),
+            SizedBox(height: 20),
             ListTile(
-              title: Text('Бюджет', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
+              title: Text(
+                'Бюджет',
+                style: TextStyle(
+                  color: Color.fromRGBO(237, 245, 225, 1.0),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
               onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => BudgetScreen()),);
+                _onItemTapped(2);
+                Navigator.pop(context);
               },
             ),
-            SizedBox(height:20),
-            ListTile(
-              title: Text('График', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
-              tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
-              onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()),);
-              },
-            ),
-             SizedBox(height:20),
-             ListTile(
-              title: Text('Регулярные', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
-              tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
-              onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()),);
-              },
-            ),
-             SizedBox(height:20),
-             ListTile(
-              title: Text('Справка', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
-              tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
-              onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()),);
-              },
-            ),
-             SizedBox(height:20),
-             ListTile(
-              title: Text('Связь', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16,fontWeight: FontWeight.bold)),
-              tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
-              onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()),);
-              },
-            ),
-             SizedBox(height:20),
-             ListTile(
-              title: Text('Категории', style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 16, fontWeight: FontWeight.bold)),
-              tileColor: const Color.fromRGBO(5, 56, 107, 0.95),
-              onTap: () {
-                 Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()),);
-              },
-             ),
           ],
         ),
       ),
-      body: Container(
-          padding: EdgeInsets.all(5),
-          margin: EdgeInsets.symmetric(vertical: 50),
-          width: double.infinity,
-          height: 156,
-          color:  const Color.fromRGBO(5, 56, 107, 0.95),
-          child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text('Текущий счёт', textAlign: TextAlign.center, style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 24)),
-                  //поле с текущей суммой денег
-                ],
-              ),
-            ),
-      );
-        }    
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+    );
   }
-
-
-class ScoresScreen extends StatefulWidget {
-  const ScoresScreen({super.key});
-  @override
-  State<ScoresScreen> createState() => _ScoresScreenState();
 }
 
-class _ScoresScreenState extends State<ScoresScreen>{
-  final List<String> _scores = [];
-  final TextEditingController _controller = TextEditingController();
-  int _selectedIndex = -1;
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
-  void _showDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Добавить счёт'),
-            content: Container(
-              width: 200,
-              child: TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Введите название счета',
+class _HomeScreenState extends State<HomeScreen> {
+  double _score = 0.0;
+  double _plannedBudget = 0.0;
+  List<Map<String, dynamic>> _plannedOperations = [];
+  TextEditingController amountController = TextEditingController();
+  TextEditingController plannedBudgetController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadScore();
+    _loadPlannedBudget();
+    _loadPlannedOperations();
+  }
+
+  void _loadScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _score = prefs.getDouble('score') ?? 0.0;
+    });
+  }
+
+  void _saveScore(double score) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('score', score);
+  }
+
+  void _loadPlannedBudget() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _plannedBudget = prefs.getDouble('plannedBudget') ?? 0.0;
+    });
+  }
+
+  void _savePlannedBudget(double budget) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('plannedBudget', budget);
+  }
+
+  void _loadPlannedOperations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? operationsJson = prefs.getString('plannedOperations');
+    if (operationsJson != null) {
+      setState(() {
+        _plannedOperations = List<Map<String, dynamic>>.from(jsonDecode(operationsJson));
+      });
+    }
+  }
+
+  void _savePlannedOperations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String operationsJson = jsonEncode(_plannedOperations);
+    await prefs.setString('plannedOperations', operationsJson);
+  }
+
+  void _showAdjustBalanceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Изменить баланс'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(hintText: 'Сумма'),
                 ),
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.done,
-                onChanged: (text) {
-                  // Do something with the text input
-                },
-                onSubmitted: (text) {
-                  // Do something when the user submits the text input
-                },
-                maxLength: 20,
-                obscureText: false,
-              )),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Добавить'),
-                onPressed: () {
-                  String value = _controller.text;
-                  setState(() {
-                  _scores.add(value); // Добавляем новый счет
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Убавить'),
+              onPressed: () {
+                double amount = double.tryParse(amountController.text) ?? 0.0;
+                setState(() {
+                  _score -= amount;
+                  _saveScore(_score);
                 });
-                   Navigator.pop(context);
-                   _controller.clear();
-                },
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Прибавить'),
+              onPressed: () {
+                double amount = double.tryParse(amountController.text) ?? 0.0;
+                setState(() {
+                  _score += amount;
+                  _saveScore(_score);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAddPlannedOperationDialog(BuildContext context) {
+    final TextEditingController descriptionController = TextEditingController();
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Добавить запланированную операцию'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Описание',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: amountController,
+                decoration: InputDecoration(
+                  labelText: 'Сумма',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
               ),
             ],
-          );
-        },
-      );
-    }
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                String description = descriptionController.text;
+                double amount = double.tryParse(amountController.text) ?? 0.0;
+
+                if (description.isNotEmpty) {
+                  setState(() {
+                    _plannedOperations.add({'description': description, 'amount': amount});
+                    _savePlannedOperations();
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Добавить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  double get _projectedBalance {
+    double totalOperations = _plannedOperations.fold(0, (sum, operation) => sum + operation['amount']);
+    return _score + totalOperations;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 100,
-        title: Text('Счета', textAlign: TextAlign.center, style: TextStyle(color: Color.fromRGBO(237, 245, 225, 1.0), fontSize: 32)),
-        backgroundColor: const Color.fromRGBO(5, 56, 107, 0.95),
-      ),
-      body: Center(
-        child: Column(
-
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(child: ListView.builder(
-              itemCount:_scores.length,
-              itemBuilder:(BuildContext context, int index) =>
-              ListTile(
-                onTap: (){
-                  setState((){
-                    _selectedIndex = index;
-                  });
-                },
-                title: Text(_scores[index], style: TextStyle(fontSize:24)),
-                selected: index == _selectedIndex,
-                selectedTileColor: Colors.black12,
+      backgroundColor: const Color.fromRGBO(92, 219, 149, 1.0), // Зеленый фон для всего экрана
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          color: const Color.fromRGBO(92, 219, 149, 1.0), // Зеленый фон для контейнера
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // Текущий счет в синем прямоугольнике
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(5, 56, 107, 1.0), // Синий фон
+                  borderRadius: BorderRadius.circular(10), // Закругленные углы
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Текущий счёт',
+                      style: TextStyle(
+                        color: Colors.white, // Белый текст
+                        fontSize: 24,
+                      ),
+                    ),
+                    Text(
+                      '$_score',
+                      style: const TextStyle(
+                        color: Colors.white, // Белый текст
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () => _showAdjustBalanceDialog(context),
+                      child: const Text('Изменить баланс'),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              SizedBox(height: 20),
+
+              // Планируемый бюджет
+              Text(
+                'Планируемый бюджет',
+                style: TextStyle(
+                  color: Color.fromRGBO(5, 56, 107, 1.0), // Синий текст
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white, // Белый фон
+                  borderRadius: BorderRadius.circular(10), // Закругленные углы
+                ),
+                child: TextField(
+                  controller: plannedBudgetController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: 'Введите планируемый бюджет',
+                    hintStyle: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold, ),
+                    
+                    border: InputBorder.none, // Убираем стандартную рамку
+                  ),
+                  style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 20), // Черный текст
+                  onChanged: (value) {
+                    setState(() {
+                      _plannedBudget = double.tryParse(value) ?? 0.0;
+                      _savePlannedBudget(_plannedBudget);
+                    });
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Прогнозируемый бюджет
+              Text(
+                'Прогнозируемый бюджет',
+                style: TextStyle(
+                  color: Color.fromRGBO(5, 56, 107, 1.0), // Синий текст
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white, // Белый фон
+                  borderRadius: BorderRadius.circular(10), // Закругленные углы
+                ),
+                child: Text(
+                  '$_projectedBalance',
+                  style: const TextStyle(
+                    color: Colors.black, // Черный текст
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Запланированные операции
+              Text(
+                'Запланированные операции',
+                style: TextStyle(
+                  color: Color.fromRGBO(5, 56, 107, 1.0), // Синий текст
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              ..._plannedOperations.map((operation) => Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(5, 56, 107, 1.0), // Синий фон
+                      borderRadius: BorderRadius.circular(10), // Закругленные углы
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          operation['description'],
+                          style: TextStyle(
+                            color: Colors.white, // Белый текст
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          'Сумма: ${operation['amount']}',
+                          style: TextStyle(
+                            color: Colors.white, // Белый текст
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10), // Зеленый пробел между операциями
+                ],
+              )).toList(),
+              IconButton(
+                icon: Icon(Icons.add, color: Color.fromRGBO(5, 56, 107, 1.0)), // Белая иконка
+                onPressed: () => _showAddPlannedOperationDialog(context),
+              ),
+            ],
           ),
-        ],
         ),
       ),
-       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showDialog(context),
-        tooltip: 'Добавить счёт',
-        child: const Icon(Icons.add)),
+    );
+  }
+}
+
+class ScoresScreen extends StatefulWidget {
+  const ScoresScreen({super.key});
+
+  @override
+  State<ScoresScreen> createState() => _ScoresScreenState();
+}
+
+class _ScoresScreenState extends State<ScoresScreen> {
+  final List<Map<String, dynamic>> _accounts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccounts();
+  }
+
+  void _loadAccounts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accountsJson = prefs.getString('accounts');
+    if (accountsJson != null) {
+      setState(() {
+        _accounts.addAll(List<Map<String, dynamic>>.from(
+          jsonDecode(accountsJson),
+        ));
+      });
+    }
+  }
+
+  void _saveAccounts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String accountsJson = jsonEncode(_accounts);
+    await prefs.setString('accounts', accountsJson);
+  }
+
+  void _showAddAccountDialog(BuildContext context) {
+    final TextEditingController _nameController = TextEditingController();
+    final TextEditingController _amountController = TextEditingController(
+      text: '0',
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Добавить счет'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Название счета',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _amountController,
+                decoration: InputDecoration(
+                  labelText: 'Сумма',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      double currentAmount =
+                          double.tryParse(_amountController.text) ?? 0;
+                      if (currentAmount > 0) {
+                        _amountController.text =
+                            (currentAmount - 100).toString();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      double currentAmount =
+                          double.tryParse(_amountController.text) ?? 0;
+                      _amountController.text = (currentAmount + 100).toString();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                String name = _nameController.text;
+                double amount = double.tryParse(_amountController.text) ?? 0;
+
+                if (name.isNotEmpty) {
+                  setState(() {
+                    _accounts.add({'name': name, 'amount': amount});
+                    _saveAccounts(); // Автоматическое сохранение
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Добавить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView.builder(
+        itemCount: _accounts.length,
+        itemBuilder: (context, index) {
+          final account = _accounts[index];
+          return Card(
+            margin: EdgeInsets.all(10),
+            color: Color.fromRGBO(5, 56, 107, 0.95),
+            child: ListTile(
+              title: Text(
+                account['name'],
+                style: TextStyle(
+                  color: Color.fromRGBO(237, 245, 225, 1.0),
+                  fontSize: 20,
+                ),
+              ),
+              subtitle: Text(
+                'Сумма: ${account['amount']}',
+                style: TextStyle(
+                  color: Color.fromRGBO(237, 245, 225, 1.0),
+                  fontSize: 16,
+                ),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  _showEditAccountDialog(context, index);
+                },
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddAccountDialog(context),
+        tooltip: 'Добавить счет',
+        child: Icon(Icons.add),
+        backgroundColor: Color.fromRGBO(5, 56, 107, 0.95),
+      ),
+    );
+  }
+
+  void _showEditAccountDialog(BuildContext context, int index) {
+    final TextEditingController _nameController = TextEditingController(
+      text: _accounts[index]['name'],
+    );
+    final TextEditingController _amountController = TextEditingController(
+      text: _accounts[index]['amount'].toString(),
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Редактировать счет'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Название счета',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _amountController,
+                decoration: InputDecoration(
+                  labelText: 'Сумма',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      double currentAmount =
+                          double.tryParse(_amountController.text) ?? 0;
+                      if (currentAmount > 0) {
+                        _amountController.text =
+                            (currentAmount - 100).toString();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      double currentAmount =
+                          double.tryParse(_amountController.text) ?? 0;
+                      _amountController.text = (currentAmount + 100).toString();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                String name = _nameController.text;
+                double amount = double.tryParse(_amountController.text) ?? 0;
+
+                if (name.isNotEmpty) {
+                  setState(() {
+                    _accounts[index]['name'] = name;
+                    _accounts[index]['amount'] = amount;
+                    _saveAccounts(); // Автоматическое сохранение
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Сохранить'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -263,14 +722,11 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('О нас'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Это экран "О нас"!'),
+            Text('Бюджет'),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
